@@ -29,18 +29,11 @@ jobs:
       - name: Run scraper
         env:
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
-          EMAIL_PROVIDER: ${{ secrets.EMAIL_PROVIDER }}
-          # SendGrid
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
-          SENDGRID_FROM_EMAIL: ${{ secrets.SENDGRID_FROM_EMAIL }}
-          # Resend
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
-          # SMTP (Gmail, etc.)
-          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          # Mailjet
+          MAILJET_API_KEY: ${{ secrets.MAILJET_API_KEY }}
+          MAILJET_API_SECRET: ${{ secrets.MAILJET_API_SECRET }}
+          MAILJET_FROM_EMAIL: ${{ secrets.MAILJET_FROM_EMAIL }}
+          MAILJET_FROM_NAME: ${{ secrets.MAILJET_FROM_NAME }}
         run: |
           python scraper.py
 

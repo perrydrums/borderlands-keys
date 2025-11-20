@@ -27,26 +27,16 @@ git clone https://github.com/yourusername/borderlands-keys.git
 cd borderlands-keys
 ```
 
-### 2. Choose an Email Provider
+### 2. Set Up Mailjet (Free - 6,000 emails/month)
 
-You have three options for sending emails:
+Mailjet offers a free tier with 6,000 emails per month (200 per day), perfect for this project!
 
-#### Option A: SendGrid (Recommended - 100 emails/day free)
-
-1. Sign up at [SendGrid](https://sendgrid.com/)
-2. Create an API key in Settings → API Keys
-3. Verify your sender email address
-
-#### Option B: Resend (3,000 emails/month free)
-
-1. Sign up at [Resend](https://resend.com/)
-2. Create an API key
-3. Verify your domain or use their test domain
-
-#### Option C: SMTP (Gmail or other SMTP server)
-
-1. For Gmail, create an [App Password](https://support.google.com/accounts/answer/185833)
-2. Use your email and app password
+1. Sign up at [Mailjet](https://www.mailjet.com/)
+2. Go to [Account Settings → API Keys](https://app.mailjet.com/account/apikeys)
+3. Copy your **API Key** and **Secret Key**
+4. Verify your sender email address:
+   - Go to [Senders & Domains](https://app.mailjet.com/account/sender)
+   - Add and verify your email address (check your inbox for verification email)
 
 ### 3. Configure GitHub Secrets
 
@@ -54,23 +44,10 @@ Go to your repository → Settings → Secrets and variables → Actions, and ad
 
 **Required:**
 - `RECIPIENT_EMAIL`: Your email address to receive notifications
-
-**For SendGrid:**
-- `EMAIL_PROVIDER`: `sendgrid`
-- `SENDGRID_API_KEY`: Your SendGrid API key
-- `SENDGRID_FROM_EMAIL`: Your verified sender email
-
-**For Resend:**
-- `EMAIL_PROVIDER`: `resend`
-- `RESEND_API_KEY`: Your Resend API key
-- `RESEND_FROM_EMAIL`: Your sender email (e.g., `notifications@resend.dev`)
-
-**For SMTP:**
-- `EMAIL_PROVIDER`: `smtp`
-- `SMTP_SERVER`: `smtp.gmail.com` (or your SMTP server)
-- `SMTP_PORT`: `587`
-- `SMTP_USER`: Your email address
-- `SMTP_PASSWORD`: Your app password or SMTP password
+- `MAILJET_API_KEY`: Your Mailjet API Key
+- `MAILJET_API_SECRET`: Your Mailjet Secret Key
+- `MAILJET_FROM_EMAIL`: Your verified sender email address
+- `MAILJET_FROM_NAME`: (Optional) Sender name, defaults to "Borderlands Monitor"
 
 ### 4. Test Locally (Optional)
 
@@ -85,8 +62,9 @@ python scraper.py
 
 # Option 2: Set environment variables manually
 export RECIPIENT_EMAIL="your-email@example.com"
-export EMAIL_PROVIDER="sendgrid"  # or "resend" or "smtp"
-export SENDGRID_API_KEY="your-api-key"  # if using SendGrid
+export MAILJET_API_KEY="your-mailjet-api-key"
+export MAILJET_API_SECRET="your-mailjet-api-secret"
+export MAILJET_FROM_EMAIL="your-verified-email@example.com"
 python scraper.py
 ```
 
@@ -164,9 +142,7 @@ The scraper:
 ## Cost Breakdown
 
 - **GitHub Actions**: Free for public repositories (2,000 minutes/month)
-- **SendGrid**: Free tier (100 emails/day)
-- **Resend**: Free tier (3,000 emails/month)
-- **SMTP**: Free (Gmail, etc.)
+- **Mailjet**: Free tier (6,000 emails/month, 200/day)
 
 **Total Cost: $0/month** 🎉
 
@@ -182,4 +158,4 @@ Found a bug or want to improve something? Feel free to open an issue or submit a
 
 - [MentalMars](https://mentalmars.com/) for maintaining the shift codes page
 - GitHub Actions for free CI/CD
-- SendGrid/Resend for free email services
+- Mailjet for free email services
