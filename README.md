@@ -78,14 +78,23 @@ Go to your repository → Settings → Secrets and variables → Actions, and ad
 # Install dependencies
 pip install -r requirements.txt
 
-# Set environment variables
+# Option 1: Use .env file (recommended)
+cp .env.example .env
+# Edit .env file with your actual credentials
+python scraper.py
+
+# Option 2: Set environment variables manually
 export RECIPIENT_EMAIL="your-email@example.com"
 export EMAIL_PROVIDER="sendgrid"  # or "resend" or "smtp"
 export SENDGRID_API_KEY="your-api-key"  # if using SendGrid
-
-# Run the scraper
 python scraper.py
 ```
+
+**Using .env file:**
+1. Copy `.env.example` to `.env`: `cp .env.example .env`
+2. Edit `.env` and fill in your actual credentials
+3. Run `python scraper.py` - it will automatically load variables from `.env`
+4. The `.env` file is gitignored, so your secrets stay local
 
 ### 5. Enable GitHub Actions
 

@@ -15,6 +15,13 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# Load environment variables from .env file if it exists
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not installed, skip .env loading
+
 
 # Configuration
 URL = "https://mentalmars.com/game-news/borderlands-4-shift-codes/"
@@ -207,34 +214,34 @@ def send_via_smtp(new_codes: List[Dict[str, str]], recipient_email: str):
 
 def format_email_body(new_codes: List[Dict[str, str]]) -> str:
     """Format the email body as HTML."""
-    html = """
+    html = f"""
     <html>
     <head>
         <style>
-            body { font-family: Arial, sans-serif; }
-            .code {
+            body {{ font-family: Arial, sans-serif; }}
+            .code {{
                 font-family: monospace;
                 background-color: #f4f4f4;
                 padding: 10px;
                 border-radius: 5px;
                 margin: 10px 0;
-            }
-            .code-block {
+            }}
+            .code-block {{
                 background-color: #ffffff;
                 border: 1px solid #ddd;
                 border-radius: 5px;
                 padding: 15px;
                 margin: 10px 0;
-            }
-            h2 { color: #333; }
-            .reward { font-weight: bold; color: #0066cc; }
-            .date { color: #666; font-size: 0.9em; }
+            }}
+            h2 {{ color: #333; }}
+            .reward {{ font-weight: bold; color: #0066cc; }}
+            .date {{ color: #666; font-size: 0.9em; }}
         </style>
     </head>
     <body>
         <h2>🎮 New Borderlands 4 Shift Codes!</h2>
-        <p>Found <strong>{count}</strong> new shift code(s):</p>
-    """.format(count=len(new_codes))
+        <p>Found <strong>{len(new_codes)}</strong> new shift code(s):</p>
+    """
 
     for code_info in new_codes:
         html += f"""
