@@ -126,7 +126,7 @@ def send_email_notification(new_codes: List[Dict[str, str]], recipient_email: st
 def send_via_sendgrid(new_codes: List[Dict[str, str]], recipient_email: str):
     """Send email using SendGrid API."""
     import sendgrid
-    from sendgrid.helpers.mail import Mail
+    from sendgrid.helpers.mail import Mail, Category
 
     api_key = os.getenv('SENDGRID_API_KEY')
     if not api_key:
@@ -135,19 +135,40 @@ def send_via_sendgrid(new_codes: List[Dict[str, str]], recipient_email: str):
 
     sg = sendgrid.SendGridAPIClient(api_key=api_key)
 
-    subject = f"🎮 New Borderlands 4 Shift Codes Available! ({len(new_codes)} new)"
-    body = format_email_body(new_codes)
+    # Less spammy subject line (removed emoji)
+    subject = f"New Borderlands 4 Shift Codes Available ({len(new_codes)} new)"
+
+    html_body = format_email_body(new_codes)
+    plain_text_body = format_email_body_plain(new_codes)
+
+    from_email = os.getenv('SENDGRID_FROM_EMAIL', recipient_email)
+    from_name = os.getenv('SENDGRID_FROM_NAME', 'Borderlands Monitor')
 
     message = Mail(
-        from_email=os.getenv('SENDGRID_FROM_EMAIL', recipient_email),
+        from_email=(from_email, from_name),  # Add name
         to_emails=recipient_email,
         subject=subject,
-        html_content=body
+        html_content=html_body,
+        plain_text_content=plain_text_body  # Add plain text version
     )
+
+    # Add reply-to
+    message.reply_to = from_email
+
+    # Add categories for tracking (using proper Category object)
+    try:
+        message.add_category(Category("shift-codes"))
+    except (AttributeError, TypeError, ImportError):
+        pass  # Category not supported, skip it
 
     try:
         response = sg.send(message)
-        print(f"Email sent successfully via SendGrid. Status: {response.status_code}")
+        # SendGrid response is an object with status_code attribute
+        if hasattr(response, 'status_code'):
+            status_code = response.status_code
+        else:
+            status_code = getattr(response, 'status_code', 'unknown')
+        print(f"Email sent successfully via SendGrid. Status: {status_code}")
     except Exception as e:
         print(f"Error sending email via SendGrid: {e}")
 
@@ -163,15 +184,18 @@ def send_via_resend(new_codes: List[Dict[str, str]], recipient_email: str):
 
     resend.api_key = api_key
 
-    subject = f"🎮 New Borderlands 4 Shift Codes Available! ({len(new_codes)} new)"
-    body = format_email_body(new_codes)
+    # Less spammy subject line (removed emoji)
+    subject = f"New Borderlands 4 Shift Codes Available ({len(new_codes)} new)"
+    html_body = format_email_body(new_codes)
+    plain_text_body = format_email_body_plain(new_codes)
 
     try:
         params = {
             "from": os.getenv('RESEND_FROM_EMAIL', 'notifications@resend.dev'),
             "to": recipient_email,
             "subject": subject,
-            "html": body
+            "html": html_body,
+            "text": plain_text_body  # Add plain text version
         }
 
         email = resend.Emails.send(params)
@@ -191,15 +215,21 @@ def send_via_smtp(new_codes: List[Dict[str, str]], recipient_email: str):
         print("Error: SMTP_USER and SMTP_PASSWORD must be set for SMTP email")
         return
 
-    subject = f"🎮 New Borderlands 4 Shift Codes Available! ({len(new_codes)} new)"
-    body = format_email_body(new_codes)
+    # Less spammy subject line (removed emoji)
+    subject = f"New Borderlands 4 Shift Codes Available ({len(new_codes)} new)"
+    html_body = format_email_body(new_codes)
+    plain_text_body = format_email_body_plain(new_codes)
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
     msg['From'] = smtp_user
     msg['To'] = recipient_email
+    msg['Reply-To'] = smtp_user  # Add reply-to
 
-    html_part = MIMEText(body, 'html')
+    # Add both plain text and HTML versions
+    text_part = MIMEText(plain_text_body, 'plain')
+    html_part = MIMEText(html_body, 'html')
+    msg.attach(text_part)
     msg.attach(html_part)
 
     try:
@@ -263,6 +293,23 @@ def format_email_body(new_codes: List[Dict[str, str]]) -> str:
     """
 
     return html
+
+
+def format_email_body_plain(new_codes: List[Dict[str, str]]) -> str:
+    """Format the email body as plain text."""
+    text = f"New Borderlands 4 Shift Codes Available!\n\n"
+    text += f"Found {len(new_codes)} new shift code(s):\n\n"
+
+    for code_info in new_codes:
+        text += f"{code_info['reward']}\n"
+        text += f"Code: {code_info['code']}\n"
+        text += f"Added: {code_info['added_date']} | Expires: {code_info['expire_date']}\n\n"
+
+    text += "Redeem codes on the Official SHiFT Website:\n"
+    text += "https://shift.gearboxsoftware.com/rewards\n\n"
+    text += "Source: https://mentalmars.com/game-news/borderlands-4-shift-codes/\n"
+
+    return text
 
 
 def main():
